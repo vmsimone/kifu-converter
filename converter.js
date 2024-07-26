@@ -69,9 +69,11 @@ function organizeMoves(input) {
 
         if (move === '投了') {
             organizedArr.push(move);
+
         } else if(moveIsCapture) {
             move = captureHandler(move, prevMove);
             organizedArr.push(move);
+
         } else {
             if(moveIsDrop) {
                 move = move + '打';
@@ -93,7 +95,16 @@ function organizeMoves(input) {
 }
 
 function captureHandler(move, prevMove) {
-    return 'xxx'
+    let sameCoord = (prevMove[2] + prevMove[3]) === (move[2] + move[3])
+    if(sameCoord) {
+        let newMove = '同' + move[0] + move.substring(4);
+        return newMove
+    } else {
+        const piece = move[0];
+        const coord = move[2] + move[3]
+        let newMove = coord + piece + move.substring(4);
+        return newMove
+    }
 }
 
 function printKifu(arr) {
@@ -102,7 +113,8 @@ function printKifu(arr) {
         kifu += `
         ${i + 1} ${move}`;
     })
-    console.log(kifu)
+    console.log(kifu);
+    $('#output').val(kifu);
 }
 
 $(loadPage);
