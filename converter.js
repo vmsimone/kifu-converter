@@ -8,7 +8,9 @@ function loadPage() {
 
 function replaceWords(input) {
     let output = input.replace('Resigns', '投了');
-    output = output.replace(/\[Diagram.*\]/g, '');
+    output = output.replace(/ \[Diagram.*?\]/g, '');
+    output = output.replace(/ \(Diagram.*?\)/g, '');
+    output = output.replace(' ;', ';')
 
     replaceCoordinates(output);
 }
@@ -51,6 +53,8 @@ function replacePieceNames(input) {
     output = output.replace(/R/g, '飛');
     output = output.replace(/B/g, '角');
 
+    console.log(output);
+
     organizeMoves(output);
 }
 
@@ -63,6 +67,8 @@ function organizeMoves(input) {
 
         let moveIsCapture = move.indexOf('x') > -1;
         let moveIsDrop = move.indexOf('*') > -1;
+        let moveIsPawnDrop = move.indexOf('P*') > -1;
+        let moveIsAmbiguous = move.length > 5;
 
         move = move.replace('+', '成');
         move = move.replace('=', '不成');
@@ -74,8 +80,10 @@ function organizeMoves(input) {
             move = captureHandler(move, prevMove);
             organizedArr.push(move);
 
+            // add ambiguity handler
+
         } else {
-            if(moveIsDrop) {
+            if(moveIsDrop && !moveIsPawnDrop) {
                 move = move + '打';
             }
             const piece = move[0];
@@ -95,15 +103,22 @@ function organizeMoves(input) {
 }
 
 function captureHandler(move, prevMove) {
-    let sameCoord = (prevMove[2] + prevMove[3]) === (move[2] + move[3])
-    if(sameCoord) {
-        let newMove = '同' + move[0] + move.substring(4);
-        return newMove
-    } else {
+    if(prevMove == undefined) {
         const piece = move[0];
         const coord = move[2] + move[3]
         let newMove = coord + piece + move.substring(4);
         return newMove
+    } else {
+        let sameCoord = (prevMove[2] + prevMove[3]) === (move[2] + move[3])
+        if(sameCoord) {
+            let newMove = '同' + move[0] + move.substring(4);
+            return newMove
+        } else {
+            const piece = move[0];
+            const coord = move[2] + move[3]
+            let newMove = coord + piece + move.substring(4);
+            return newMove
+        }
     }
 }
 
